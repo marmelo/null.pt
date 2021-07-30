@@ -1,10 +1,10 @@
 <!doctype html><html lang=en-us>
 <head>
-<title>null.pt</title>
+<title>Plotting analog readings from Arduino using Matplotlib | null.pt</title>
 <meta charset=utf-8>
 <meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
 <meta name=viewport content="width=device-width,minimum-scale=1">
-<meta name=description content="My Blog">
+<meta name=description content="Uses an LDR (Light Dependent Resistor) to sample readings through the serial port every half second. A Python script reads from the serial port and plots the light intensity using Matplotlib.">
 <meta name=generator content="Hugo 0.86.0">
 <meta name=ROBOTS content="NOINDEX, NOFOLLOW">
 <link rel=stylesheet href=/css/style.css>
@@ -18,38 +18,113 @@
 <a href=/about>About</a>
 </nav>
 <main class=main>
-<div id=page-404>
-<div class=text>
-<h1>404 - Page Not Found</h1>
-<div>The content you're looking for doesn't seem to exist.</div>
+<section id=single>
+<h1 class=title>Plotting analog readings from Arduino using Matplotlib</h1>
+<div class=tip>
+<span>
+Mar 10, 2011 23:45
+</span>
+<span class=split>
+·
+</span>
+<span>
+202 words
+</span>
+<span class=split>
+·
+</span>
+<span>
+1 minute read
+</span>
 </div>
-</div>
-<h2 class=read-more>Read More</h2>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/integrating-java-with-bash-pipes/>Integrating Java with Bash pipes</a></h1>
-<div class=date>Nov 23, 2012</div>
+<div class=content>
+<p>Uses an LDR (Light Dependent Resistor) to sample readings through the serial port every half second. A Python script reads from the serial port and plots the light intensity using Matplotlib.</p>
+<p>Optionally, just for the kicks, there are two LEDs:</p>
+<ul>
+<li>Green - Lit when the light intensity is higher than 50%</li>
+<li>Red - Otherwise</li>
+</ul>
+<h3 id=components>Components <a href=#components class=anchor>🔗</a></h3><ul>
+<li>LDR</li>
+<li>2.2kΩ Resistor (red-red-red)</li>
+<li>Python (with <a href=http://matplotlib.sourceforge.net/ target=_blank rel=noopener>
+Matplotlib
+</a> and <a href=http://pyserial.sourceforge.net/ target=_blank rel=noopener>
+Serial
+</a>)</li>
+<li>Red LED (optional)</li>
+<li>Green LED (optional)</li>
+<li>Two 220Ω Resistors (optional, red-red-brown)</li>
+<li><strong>WARNING</strong>: The probability of the resistors being wrong is... extremely high!</li>
+</ul>
+<h3 id=schematics>Schematics <a href=#schematics class=anchor>🔗</a></h3><p><p class=markdown-image>
+<img src=/files/Arduino-plot-04.jpg alt>
+</p>
+<p class=markdown-image>
+<img src=/files/Arduino-plot-03.jpg alt>
+</p>
+<p class=markdown-image>
+<img src=/files/Arduino-plot-02.jpg alt>
+</p>
+<p class=markdown-image>
+<img src=/files/Arduino-plot-01.jpg alt>
+</p></p>
+<h3 id=arduino-code>Arduino Code <a href=#arduino-code class=anchor>🔗</a></h3><div class=highlight><pre tabindex=0 style=background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback>const int BAUD_RATE = 9600;
+ 
+const int RED = 9;
+const int GREEN = 8;
+const int LDR = 0;
+ 
+void setup()   {
+  pinMode(RED, OUTPUT);
+  pinMode(GREEN, OUTPUT);
+  Serial.begin(BAUD_RATE);
+}
+ 
+void loop()
+{
+  int light = analogRead(LDR);
+ 
+  if (light &gt; 500) {
+    digitalWrite(RED, LOW);
+    digitalWrite(GREEN, HIGH);
+  } else {
+    digitalWrite(RED, HIGH);
+    digitalWrite(GREEN, LOW);
+  }
+ 
+  Serial.println(light);
+  delay(500);
+}
+</code></pre></div><h3 id=python-code>Python Code <a href=#python-code class=anchor>🔗</a></h3><div class=highlight><pre tabindex=0 style=background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback>from serial import Serial
+from pylab import *
+ 
+# serial connection to arduino
+arduino = Serial(&#39;/dev/ttyUSB0&#39;, 9600)
+ 
+# readings
+y = []
+ 
+# empty plot (interactive mode)
+ion()
+plot(y, &#39;b&#39;)
+draw()
+ 
+while True:
+  try:
+    # read from arduino
+    reading = int(arduino.readline())
+    # replot
+    y.append(reading)
+    plot(y, &#39;b&#39;)
+    draw()
+  except ValueError:
+    pass
+</code></pre></div><h3 id=final-result>Final Result <a href=#final-result class=anchor>🔗</a></h3><p><p class=markdown-image>
+<img src=/files/Arduino-plot.png alt>
+</p></p>
 </div>
 </section>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/how-to-generate-rpms-from-r-modules/>How to generate RPMs from R modules</a></h1>
-<div class=date>Oct 3, 2012</div>
-</div>
-</section>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/9ticks-the-web-as-a-stream/>9ticks - The Web as a Stream</a></h1>
-<div class=date>Oct 3, 2012</div>
-</div>
-</section>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/plotting-analog-readings-from-arduino-using-matplotlib/>Plotting analog readings from Arduino using Matplotlib</a></h1>
-<div class=date>Mar 10, 2011</div>
-</div>
-</section>
-</div>
 </main>
 <footer id=footer>
 <div id=social>

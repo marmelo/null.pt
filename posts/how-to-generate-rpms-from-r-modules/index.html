@@ -1,10 +1,15 @@
 <!doctype html><html lang=en-us>
 <head>
-<title>null.pt</title>
+<title>How to generate RPMs from R modules | null.pt</title>
 <meta charset=utf-8>
 <meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
 <meta name=viewport content="width=device-width,minimum-scale=1">
-<meta name=description content="My Blog">
+<meta name=description content="Today I was setting up a CentOS server with some packages including 
+    R
+ and a couple of R modules.
+R is generally available from third-party repositories like 
+    EPEL
+ but its modules must be compiled locally, which requires a lot of dependencies like R-devel and GCC.">
 <meta name=generator content="Hugo 0.86.0">
 <meta name=ROBOTS content="NOINDEX, NOFOLLOW">
 <link rel=stylesheet href=/css/style.css>
@@ -18,38 +23,59 @@
 <a href=/about>About</a>
 </nav>
 <main class=main>
-<div id=page-404>
-<div class=text>
-<h1>404 - Page Not Found</h1>
-<div>The content you're looking for doesn't seem to exist.</div>
+<section id=single>
+<h1 class=title>How to generate RPMs from R modules</h1>
+<div class=tip>
+<span>
+Oct 3, 2012 23:56
+</span>
+<span class=split>
+·
+</span>
+<span>
+181 words
+</span>
+<span class=split>
+·
+</span>
+<span>
+1 minute read
+</span>
 </div>
-</div>
-<h2 class=read-more>Read More</h2>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/integrating-java-with-bash-pipes/>Integrating Java with Bash pipes</a></h1>
-<div class=date>Nov 23, 2012</div>
+<div class=content>
+<p>Today I was setting up a CentOS server with some packages including <a href=http://www.r-project.org/ target=_blank rel=noopener>
+R
+</a> and a couple of R modules.
+R is generally available from third-party repositories like <a href=http://fedoraproject.org/wiki/EPEL target=_blank rel=noopener>
+EPEL
+</a> but its modules must be compiled locally, which requires a lot of dependencies like R-devel and GCC.</p>
+<p>As I wanted to keep the number of installed packages as low as possible there was the need to generate RPMs from the R modules allowing me to just install them in the very secure and lightweight server.</p>
+<p>After some searching I came across <a href=https://fedorahosted.org/r2spec/ target=_blank rel=noopener>
+R2spec
+</a> which is a tool just for what I need.
+It worked like a charm, but not at first.</p>
+<p>For instance, lets see what we need to do in order to generate the <a href=http://cran.r-project.org/web/packages/randomForest/ target=_blank rel=noopener>
+randomForest
+</a> RPM.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback># install packages (from the EPEL repository)
+yum install R-devel R2spec rpm-build
+ 
+# create environment
+rm -Rf ~/rpmbuild
+mkdir -p ~/rpmbuild/SPECS
+mkdir -p ~/rpmbuild/SOURCES/
+ 
+# download and generate spec and rpm
+R2rpm -p randomForest --no-suggest --no-check --verbose
+ 
+# the generated rpm may be found at
+ls ~/rpmbuild/RPMS/x86_64/R-randomForest-4.6.6-1.el6.x86_64.rpm
+ 
+# install rpm in the final machine
+rpm -i R-randomForest-4.6.6-1.el6.x86_64.rpm
+</code></pre></div>
 </div>
 </section>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/how-to-generate-rpms-from-r-modules/>How to generate RPMs from R modules</a></h1>
-<div class=date>Oct 3, 2012</div>
-</div>
-</section>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/9ticks-the-web-as-a-stream/>9ticks - The Web as a Stream</a></h1>
-<div class=date>Oct 3, 2012</div>
-</div>
-</section>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/plotting-analog-readings-from-arduino-using-matplotlib/>Plotting analog readings from Arduino using Matplotlib</a></h1>
-<div class=date>Mar 10, 2011</div>
-</div>
-</section>
-</div>
 </main>
 <footer id=footer>
 <div id=social>

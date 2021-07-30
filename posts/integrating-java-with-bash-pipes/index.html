@@ -1,10 +1,11 @@
 <!doctype html><html lang=en-us>
 <head>
-<title>null.pt</title>
+<title>Integrating Java with Bash pipes | null.pt</title>
 <meta charset=utf-8>
 <meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
 <meta name=viewport content="width=device-width,minimum-scale=1">
-<meta name=description content="My Blog">
+<meta name=description content="For testing purpose we will try to develop a simple Java class to replicate the GNU grep behavior.
+Lets take the following grep as the test baseline.">
 <meta name=generator content="Hugo 0.86.0">
 <meta name=ROBOTS content="NOINDEX, NOFOLLOW">
 <link rel=stylesheet href=/css/style.css>
@@ -18,38 +19,77 @@
 <a href=/about>About</a>
 </nav>
 <main class=main>
-<div id=page-404>
-<div class=text>
-<h1>404 - Page Not Found</h1>
-<div>The content you're looking for doesn't seem to exist.</div>
+<section id=single>
+<h1 class=title>Integrating Java with Bash pipes</h1>
+<div class=tip>
+<span>
+Nov 23, 2012 01:44
+</span>
+<span class=split>
+·
+</span>
+<span>
+335 words
+</span>
+<span class=split>
+·
+</span>
+<span>
+2 minute read
+</span>
 </div>
-</div>
-<h2 class=read-more>Read More</h2>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/integrating-java-with-bash-pipes/>Integrating Java with Bash pipes</a></h1>
-<div class=date>Nov 23, 2012</div>
+<div class=content>
+<p>For testing purpose we will try to develop a simple Java class to replicate the GNU <code>grep</code> behavior.
+Lets take the following <code>grep</code> as the test baseline.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback>$ cat /proc/cpuinfo | grep &#34;model name&#34;
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+</code></pre></div><p><code>grep</code> receives a pattern and uses it to filter lines from <code>stdin</code> and place them into <code>stdout</code>.
+Pretty straightforward, right? The following Java class tries to accomplish just that.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#a2f;font-weight:700>package</span> me.defying.jgrep;
+ 
+<span style=color:#a2f;font-weight:700>import</span> java.io.BufferedReader;
+<span style=color:#a2f;font-weight:700>import</span> java.io.IOException;
+<span style=color:#a2f;font-weight:700>import</span> java.io.InputStreamReader;
+<span style=color:#a2f;font-weight:700>import</span> java.io.Reader;
+ 
+public class JGrep {
+ 
+    public static void <span style=color:#00a000>main</span>(String[] args) throws IOException {
+        Reader reader = new <span style=color:#00a000>InputStreamReader</span>(System.in);
+        BufferedReader in = new <span style=color:#00a000>BufferedReader</span>(reader);
+ 
+        String line;
+        <span style=color:#00a000>while</span> ((line = in.<span style=color:#00a000>readLine</span>()) <span style=color:#666>!=</span> null) {
+            <span style=color:#a2f;font-weight:700>if</span> (args.length <span style=color:#666>==</span> <span style=color:#666>0</span> <span style=color:#666>||</span> line.<span style=color:#00a000>contains</span>(args[<span style=color:#666>0</span>])) {
+                System.out.<span style=color:#a2f>println</span>(line);
+            }
+        }
+    }
+}
+</code></pre></div><p>It is time to tryout our new Java <code>grep</code>, <code>jgrep</code> for friends.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback>$ javac me/defying/jgrep/JGrep.java
+</code></pre></div><div class=highlight><pre tabindex=0 style=background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback>$ cat /proc/cpuinfo | java me.defying.jgrep.JGrep &#34;model name&#34;
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+</code></pre></div><p>Yey! Same output.</p>
+<p>If the application we are developing is going to be used on a daily basis we need a more convenient way to execute it. For instance, we may create an alias in our <code>.bashrc</code> file or even create an executable script and put it in our <code>$PATH</code> environment variable.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback>$ alias jgrep=&#34;java me.defying.jgrep.JGrep&#34;
+$ cat /proc/cpuinfo | jgrep &#34;model name&#34;
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+model name      : Intel(R) Core(TM) i7-2640M CPU @ 2.80GHz
+</code></pre></div><p>To wrap things up, we may add new pipes to our <code>jgrep</code> output.</p>
+<div class=highlight><pre tabindex=0 style=background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback>$ cat /proc/cpuinfo | jgrep &#34;model name&#34; | wc
+      4      36     216
+</code></pre></div>
 </div>
 </section>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/how-to-generate-rpms-from-r-modules/>How to generate RPMs from R modules</a></h1>
-<div class=date>Oct 3, 2012</div>
-</div>
-</section>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/9ticks-the-web-as-a-stream/>9ticks - The Web as a Stream</a></h1>
-<div class=date>Oct 3, 2012</div>
-</div>
-</section>
-<section class=item>
-<div>
-<h1 class=title><a href=/posts/plotting-analog-readings-from-arduino-using-matplotlib/>Plotting analog readings from Arduino using Matplotlib</a></h1>
-<div class=date>Mar 10, 2011</div>
-</div>
-</section>
-</div>
 </main>
 <footer id=footer>
 <div id=social>

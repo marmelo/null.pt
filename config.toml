@@ -1,0 +1,4 @@
+baseURL = "https://null.pt/"
+languageCode = "en-us"
+title = "null.pt"
+theme = "ananke"
